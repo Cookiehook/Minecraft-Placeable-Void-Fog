@@ -44,9 +44,9 @@ public class FogEvent {
             float totDist = fogStartPoint - fogEndPoint;
             float remDist = (fogStartPoint - fogDistance) - fogEndPoint;
             float travelPercentage = remDist / totDist;
+            travelPercentage = (travelPercentage < 0.05F) ? 0.05F : travelPercentage;
+
             fogDistance -= fogIncrement * travelPercentage;
-
-
             if (fogDistance < fogStartPoint)
                 fogStartPoint -= fogDistance;
 
