@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "normal": { "model": "voidfogblock:fog_block" }
+  }
+}
