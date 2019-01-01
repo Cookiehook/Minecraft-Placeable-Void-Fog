@@ -38,17 +38,25 @@ public class FogBlock extends Block {
         ModItems.itemList.add(new ItemBlock(this).setRegistryName(this.getRegistryName()));
     }
 
-    public boolean isOpaqueCube(IBlockState state) {
-        return false;
-    }
 
-    public boolean isTranslucent(IBlockState state) {
-        return true;
+    @SideOnly(Side.CLIENT)
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
+
+        if (blockState != iblockstate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getBlockLayer() {
-        return BlockRenderLayer.TRANSLUCENT;
+        return BlockRenderLayer.CUTOUT;
+    }
+
+    public boolean isOpaqueCube(IBlockState state) {
+        return false;
     }
 
     @Nullable
@@ -63,6 +71,7 @@ public class FogBlock extends Block {
         double d2 = (double) pos.getZ() + 0.5D;
 
         worldIn.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+        //worldIn.spawnParticle(EnumParticleTypes.BARRIER, d0, d1, d2, 0.0D, 0.0D, 0.0D);
         //worldIn.spawnParticle(EnumParticleTypes.FALLING_DUST, d0, d1, d2, 0.0D, 0.0D, 0.0D);
 
     }
@@ -92,28 +101,6 @@ public class FogBlock extends Block {
                 }
 
             }
-
-
-//            if (worldIn.getLightFromNeighbors(pos.up()) < 4 && worldIn.getBlockState(pos.up()).getLightOpacity(worldIn, pos.up()) > 2) {
-//                worldIn.setBlockState(pos, Blocks.DIRT.getDefaultState());
-//            } else {
-//                if (worldIn.getLightFromNeighbors(pos.up()) >= 9) {
-//                    for (int i = 0; i < 4; ++i) {
-//                        BlockPos blockpos = pos.add(rand.nextInt(3) - 1, rand.nextInt(5) - 3, rand.nextInt(3) - 1);
-//
-//                        if (blockpos.getY() >= 0 && blockpos.getY() < 256 && !worldIn.isBlockLoaded(blockpos)) {
-//                            return;
-//                        }
-//
-//                        IBlockState iblockstate = worldIn.getBlockState(blockpos.up());
-//                        IBlockState iblockstate1 = worldIn.getBlockState(blockpos);
-//
-//                        if (iblockstate1.getBlock() == Blocks.DIRT && iblockstate1.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT && worldIn.getLightFromNeighbors(blockpos.up()) >= 4 && iblockstate.getLightOpacity(worldIn, pos.up()) <= 2) {
-//                            worldIn.setBlockState(blockpos, Blocks.GRASS.getDefaultState());
-//                        }
-//                    }
-//                }
-//            }
         }
     }
 }
