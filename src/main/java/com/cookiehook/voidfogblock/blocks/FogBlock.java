@@ -23,7 +23,12 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 // TODO: Decide on whether to allow mobs to spawn inside the fog
+// TODO: Allow configuration of light level for fog to spread through.
+// TODO: Allow toggling of growth / retreat (for debug / world recovery)
 public class FogBlock extends Block {
+
+    private static int burnLevel = 7;
+    private static int growLevel = 4;
 
     public FogBlock(String name) {
         super(Material.AIR);
@@ -42,12 +47,7 @@ public class FogBlock extends Block {
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
         IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
-
-        if (blockState != iblockstate) {
-            return true;
-        } else {
-            return false;
-        }
+        return (blockState != iblockstate);
     }
 
     @SideOnly(Side.CLIENT)
@@ -82,10 +82,10 @@ public class FogBlock extends Block {
                 return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
 
 
-            if (worldIn.getLight(pos, true) >= 7) {
+            if (worldIn.getLight(pos, true) >= burnLevel) {
                 worldIn.setBlockState(pos, Blocks.AIR.getDefaultState());
 
-            } else if (worldIn.getLight(pos, true) <= 4) {
+            } else if (worldIn.getLight(pos, true) <= growLevel) {
                 for (int i = 0; i < 4; ++i) {
                     BlockPos blockpos = pos.add(rand.nextInt(3) - 1, rand.nextInt(5) - 3, rand.nextInt(3) - 1);
 
@@ -95,7 +95,7 @@ public class FogBlock extends Block {
 
                     IBlockState iblockstate1 = worldIn.getBlockState(blockpos);
 
-                    if (iblockstate1.getBlock() == Blocks.AIR && worldIn.getLight(blockpos, true) <= 4) {
+                    if (iblockstate1.getBlock() == Blocks.AIR && worldIn.getLight(blockpos, true) <= growLevel) {
                         worldIn.setBlockState(blockpos, this.getDefaultState());
                     }
                 }
