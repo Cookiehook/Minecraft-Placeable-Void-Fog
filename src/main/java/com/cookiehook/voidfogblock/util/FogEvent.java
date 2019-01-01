@@ -28,7 +28,12 @@ public class FogEvent {
         if (headBlock == ModBlocks.fogBlock) {
 
             if (fogDistance < fogStartPoint - fogEndPoint) {
-                fogDistance += fogIncrement;
+                float totDist = fogStartPoint - fogEndPoint;
+                float remDist = (fogStartPoint - fogDistance) - fogEndPoint;
+                float travelPercentage = remDist / totDist;
+                fogDistance += fogIncrement * travelPercentage;
+
+
                 fogStartPoint -= fogDistance;
             } else {
                 fogStartPoint = fogEndPoint;
@@ -36,7 +41,11 @@ public class FogEvent {
 
             setFog(fogStartPoint);
         } else if (fogDistance > 0) {
-            fogDistance -= fogIncrement;
+            float totDist = fogStartPoint - fogEndPoint;
+            float remDist = (fogStartPoint - fogDistance) - fogEndPoint;
+            float travelPercentage = remDist / totDist;
+            fogDistance -= fogIncrement * travelPercentage;
+
 
             if (fogDistance < fogStartPoint)
                 fogStartPoint -= fogDistance;
