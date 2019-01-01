@@ -67,16 +67,12 @@ public class FogBlock extends Block {
 
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
-        //TODO: Add some randomness to this
 
-        double d0 = (double) pos.getX() + 0.5D;
-        double d1 = (double) pos.getY() + 0.7D;
-        double d2 = (double) pos.getZ() + 0.5D;
+        double posX = (double) pos.getX() + worldIn.rand.nextDouble();
+        double posY = (double) pos.getY() + worldIn.rand.nextDouble();
+        double posZ = (double) pos.getZ() + worldIn.rand.nextDouble();
 
-        //worldIn.spawnParticle(EnumParticleTypes.SUSPENDED_DEPTH, d0, d1, d2, 0.0D, 0.0D, 0.0D);
-
-        worldIn.spawnParticle(EnumParticleTypes.SUSPENDED_DEPTH, (double) ((float) d0 + worldIn.rand.nextFloat()), (double) ((float) d1 + worldIn.rand.nextFloat()), (double) ((float) d2 + worldIn.rand.nextFloat()), 0.0D, 0.0D, 0.0D);
-
+        worldIn.spawnParticle(EnumParticleTypes.SUSPENDED_DEPTH, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
     }
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
