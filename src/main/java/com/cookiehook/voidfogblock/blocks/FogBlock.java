@@ -3,10 +3,11 @@ package com.cookiehook.voidfogblock.blocks;
 import com.cookiehook.voidfogblock.init.ModBlocks;
 import com.cookiehook.voidfogblock.init.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDirt;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.BlockRenderLayer;
@@ -28,7 +29,7 @@ import java.util.Random;
 public class FogBlock extends Block {
 
     private static int burnLevel = 7;
-    private static int growLevel = 4;
+    private static int growLevel = 7;
 
     public FogBlock(String name) {
         super(Material.AIR);
@@ -66,13 +67,15 @@ public class FogBlock extends Block {
 
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
+        //TODO: Add some randomness to this
+
         double d0 = (double) pos.getX() + 0.5D;
         double d1 = (double) pos.getY() + 0.7D;
         double d2 = (double) pos.getZ() + 0.5D;
 
-        worldIn.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d0, d1, d2, 0.0D, 0.0D, 0.0D);
-        //worldIn.spawnParticle(EnumParticleTypes.BARRIER, d0, d1, d2, 0.0D, 0.0D, 0.0D);
-        //worldIn.spawnParticle(EnumParticleTypes.FALLING_DUST, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+        //worldIn.spawnParticle(EnumParticleTypes.SUSPENDED_DEPTH, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+
+        worldIn.spawnParticle(EnumParticleTypes.SUSPENDED_DEPTH, (double) ((float) d0 + worldIn.rand.nextFloat()), (double) ((float) d1 + worldIn.rand.nextFloat()), (double) ((float) d2 + worldIn.rand.nextFloat()), 0.0D, 0.0D, 0.0D);
 
     }
 
