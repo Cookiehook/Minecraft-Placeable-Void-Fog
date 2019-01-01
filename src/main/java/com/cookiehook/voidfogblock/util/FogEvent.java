@@ -12,26 +12,44 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class FogEvent {
 
-    @SubscribeEvent
-    public void render(RenderFogEvent e) {
-        Entity entity = e.getEntity();
+    private float fogDistance = 0F;
 
+    @SubscribeEvent
+    public void render(RenderFogEvent event) {
+        float fogStartPoint = 50.0F;
+        float fogEndPoint = 5.0F;
+        float fogIncrement = 0.1F;
+
+        Entity entity = event.getEntity();
         BlockPos playerHeadPosition = entity.getPosition().up();
         WorldClient worldclient = Minecraft.getMinecraft().world;
         Block headBlock = worldclient.getBlockState(playerHeadPosition).getBlock();
 
         if (headBlock == ModBlocks.fogBlock) {
 
-            float f1 = 10;
-            GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
-
-            if (e.getFogMode() < 0) {
-                GlStateManager.setFogStart(0.0F);
-                GlStateManager.setFogEnd(f1);
+            if (fogDistance < fogStartPoint - fogEndPoint) {
+                fogDistance += fogIncrement;
+                fogStartPoint -= fogDistance;
             } else {
-                GlStateManager.setFogStart(f1 * 0.25F);
-                GlStateManager.setFogEnd(f1);
+                fogStartPoint = fogEndPoint;
             }
+
+            setFog(fogStartPoint);
+        } else if (fogDistance > 0) {
+            fogDistance -= fogIncrement;
+
+            if (fogDistance < fogStartPoint)
+                fogStartPoint -= fogDistance;
+
+            setFog(fogStartPoint);
+        } else {
+            fogDistance = 0;
         }
+    }
+
+    private void setFog(float threshold) {
+        GlStateManager.setFog(GlStateManager.FogMode.LINEAR);
+        GlStateManager.setFogStart(threshold * 0.25F);
+        GlStateManager.setFogEnd(threshold);
     }
 }
