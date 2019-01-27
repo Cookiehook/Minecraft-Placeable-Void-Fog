@@ -1,7 +1,7 @@
 package com.cookiehook.voidfogblock.init;
 
 import com.cookiehook.voidfogblock.blocks.FogBlock;
-import com.cookiehook.voidfogblock.blocks.ModBlockFluidClassic;
+import com.cookiehook.voidfogblock.blocks.FogSourceBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 
@@ -16,6 +16,6 @@ public class ModBlocks {
 
     public static void registerBlocks() {
         fogBlock = new FogBlock("fog_block");
-        fogSourceBlock = new ModBlockFluidClassic(ModFluids.SLIME, Material.WATER, "slime");
+        fogSourceBlock = new FogSourceBlock(ModFluids.FOG_SOURCE_FLUID, Material.WATER, "fog_source");
     }
 }

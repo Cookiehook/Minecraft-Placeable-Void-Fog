@@ -1,6 +1,7 @@
 package com.cookiehook.voidfogblock.blocks;
 
 import java.awt.Color;
+import java.util.Random;
 
 import javax.annotation.Nonnull;
 
@@ -12,8 +13,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -27,28 +28,28 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-// TODO: Auto-generated Javadoc
-public class ModBlockFluidClassic extends BlockFluidClassic
+public class FogSourceBlock extends BlockFluidClassic
 {
-    /**
-     * Instantiates a new mod block fluid classic.
-     *
-     * @param parFluid
-     *            the par fluid
-     * @param parMaterial
-     *            the par material
-     */
-    public ModBlockFluidClassic(Fluid parFluid, Material parMaterial, String name)
+
+    public FogSourceBlock(Fluid parFluid, Material parMaterial, String name)
     {
         super(parFluid, parMaterial);
         this.setUnlocalizedName(name);
         this.setRegistryName(name);
-        this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
-        this.setTickRandomly(true);
-        this.useNeighborBrightness = true;
-
         ModBlocks.blockList.add(this);
         ModItems.itemList.add(new ItemBlock(this).setRegistryName(this.getRegistryName()));
+    }
+
+    @Override
+    public void updateTick(@Nonnull World worldIn, @Nonnull BlockPos blockpos, @Nonnull IBlockState state, @Nonnull Random rand)
+    {
+        super.updateTick(worldIn, blockpos, state, rand);
+
+        IBlockState iblockstate1 = worldIn.getBlockState(blockpos.up());
+        if (iblockstate1.getBlock() == Blocks.AIR) {
+            worldIn.setBlockState(blockpos.up(), ModBlocks.fogBlock.getDefaultState());
+        }
+
     }
 
     /*
@@ -81,17 +82,7 @@ public class ModBlockFluidClassic extends BlockFluidClassic
         }
     }
 
-    /**
-     * Gets the flow.
-     *
-     * @param worldIn
-     *            the world in
-     * @param pos
-     *            the pos
-     * @param state
-     *            the state
-     * @return the flow
-     */
+
     protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState state)
     {
         double d0 = 0.0D;
@@ -156,25 +147,13 @@ public class ModBlockFluidClassic extends BlockFluidClassic
         return vec3d.normalize();
     }
 
-    /**
-     * Gets the depth.
-     *
-     * @param state
-     *            the state
-     * @return the depth
-     */
+
     protected int getDepth(IBlockState state)
     {
         return state.getMaterial() == this.blockMaterial ? state.getValue(LEVEL).intValue() : -1;
     }
 
-    /**
-     * Gets the rendered depth.
-     *
-     * @param state
-     *            the state
-     * @return the rendered depth
-     */
+
     protected int getRenderedDepth(IBlockState state)
     {
         int i = this.getDepth(state);
@@ -234,7 +213,7 @@ public class ModBlockFluidClassic extends BlockFluidClassic
     @SideOnly(Side.CLIENT)
     public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
     {
-        return new Vec3d(Color.GREEN.getRed(), Color.GREEN.getGreen(), Color.GREEN.getBlue());
+        return new Vec3d(Color.BLACK.getRed(), Color.BLACK.getGreen(), Color.BLACK.getBlue());
     }
 
 }

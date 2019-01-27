@@ -11,19 +11,18 @@ import java.util.Set;
 public class ModFluids {
 
 
-    public static final ModFluid SLIME = (ModFluid) new ModFluid(
-            "slime",
-            new ResourceLocation(Reference.MOD_ID, "slime_still"),
-            new ResourceLocation(Reference.MOD_ID, "slime_flow"))
+    public static final ModFluid FOG_SOURCE_FLUID = (ModFluid) new ModFluid(
+            "fog_source",
+            new ResourceLocation(Reference.MOD_ID, "fog_source_still"),
+            new ResourceLocation(Reference.MOD_ID, "fog_source_flow"))
             .setHasBucket(true)
-            .setDensity(1100)
             .setGaseous(false)
             .setLuminosity(9)
-            .setViscosity(25000)
+            .setViscosity(5000)
             .setTemperature(300);
 
     public static final Set<ModFluid> SET_FLUIDS = ImmutableSet.of(
-            SLIME);
+            FOG_SOURCE_FLUID);
 
     public static void registerFluids() {
         // DEBUG
