@@ -28,11 +28,9 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class FogSourceBlock extends BlockFluidClassic
-{
+public class FogSourceBlock extends BlockFluidClassic {
 
-    public FogSourceBlock(Fluid parFluid, Material parMaterial, String name)
-    {
+    public FogSourceBlock(Fluid parFluid, Material parMaterial, String name) {
         super(parFluid, parMaterial);
         this.setUnlocalizedName(name);
         this.setRegistryName(name);
@@ -41,15 +39,9 @@ public class FogSourceBlock extends BlockFluidClassic
     }
 
     @Override
-    public void updateTick(@Nonnull World worldIn, @Nonnull BlockPos blockpos, @Nonnull IBlockState state, @Nonnull Random rand)
-    {
+    public void updateTick(@Nonnull World worldIn, @Nonnull BlockPos blockpos, @Nonnull IBlockState state, @Nonnull Random rand) {
         super.updateTick(worldIn, blockpos, state, rand);
-
-        IBlockState iblockstate1 = worldIn.getBlockState(blockpos.up());
-        if (iblockstate1.getBlock() == Blocks.AIR) {
-            worldIn.setBlockState(blockpos.up(), ModBlocks.fogBlock.getDefaultState());
-        }
-
+        FogBlock.spreadFog(worldIn, blockpos, rand, 2, 4);
     }
 
     /*
@@ -59,22 +51,18 @@ public class FogSourceBlock extends BlockFluidClassic
      * net.minecraft.util.math.Vec3d)
      */
     @Override
-    public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion)
-    {
+    public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion) {
         // // DEBUG
         // System.out.println("modifyAcceleration for "+entityIn+" with isPushedByWater() = "+entityIn.isPushedByWater());
 
-        if (worldIn.getBlockState(pos).getMaterial() instanceof MaterialLiquid)
-        {
+        if (worldIn.getBlockState(pos).getMaterial() instanceof MaterialLiquid) {
             Vec3d flowAdder = getFlow(worldIn, pos, worldIn.getBlockState(pos));
 
             // // DEBUG
             // System.out.println("may push entity with motion adder = "+flowAdder);
 
             return motion.add(flowAdder);
-        }
-        else
-        {
+        } else {
             // // DEBUG
             // System.out.println("may not push entity");
 
@@ -83,36 +71,29 @@ public class FogSourceBlock extends BlockFluidClassic
     }
 
 
-    protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState state)
-    {
+    protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState state) {
         double d0 = 0.0D;
         double d1 = 0.0D;
         double d2 = 0.0D;
         int i = this.getRenderedDepth(state);
         BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain();
 
-        for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
-        {
+        for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL) {
             blockpos$pooledmutableblockpos.setPos(pos).move(enumfacing);
             int j = this.getRenderedDepth(worldIn.getBlockState(blockpos$pooledmutableblockpos));
 
-            if (j < 0)
-            {
-                if (!worldIn.getBlockState(blockpos$pooledmutableblockpos).getMaterial().blocksMovement())
-                {
+            if (j < 0) {
+                if (!worldIn.getBlockState(blockpos$pooledmutableblockpos).getMaterial().blocksMovement()) {
                     j = this.getRenderedDepth(worldIn.getBlockState(blockpos$pooledmutableblockpos.down()));
 
-                    if (j >= 0)
-                    {
+                    if (j >= 0) {
                         int k = j - (i - 8);
                         d0 += enumfacing.getFrontOffsetX() * k;
                         d1 += enumfacing.getFrontOffsetY() * k;
                         d2 += enumfacing.getFrontOffsetZ() * k;
                     }
                 }
-            }
-            else if (j >= 0)
-            {
+            } else if (j >= 0) {
                 int l = j - i;
                 d0 += enumfacing.getFrontOffsetX() * l;
                 d1 += enumfacing.getFrontOffsetY() * l;
@@ -122,18 +103,15 @@ public class FogSourceBlock extends BlockFluidClassic
 
         Vec3d vec3d = new Vec3d(d0, d1, d2);
 
-        if (state.getValue(LEVEL).intValue() >= 8)
-        {
+        if (state.getValue(LEVEL).intValue() >= 8) {
             // // DEBUG
             // System.out.println("fluid level greater than zero");
 
-            for (EnumFacing enumfacing1 : EnumFacing.Plane.HORIZONTAL)
-            {
+            for (EnumFacing enumfacing1 : EnumFacing.Plane.HORIZONTAL) {
                 blockpos$pooledmutableblockpos.setPos(pos).move(enumfacing1);
 
                 if (this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos, enumfacing1)
-                        || this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos.up(), enumfacing1))
-                {
+                        || this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos.up(), enumfacing1)) {
                     // // DEBUG
                     // System.out.println("Causes downward current");
 
@@ -148,14 +126,12 @@ public class FogSourceBlock extends BlockFluidClassic
     }
 
 
-    protected int getDepth(IBlockState state)
-    {
+    protected int getDepth(IBlockState state) {
         return state.getMaterial() == this.blockMaterial ? state.getValue(LEVEL).intValue() : -1;
     }
 
 
-    protected int getRenderedDepth(IBlockState state)
-    {
+    protected int getRenderedDepth(IBlockState state) {
         int i = this.getDepth(state);
         return i >= 8 ? 0 : i;
     }
@@ -163,26 +139,18 @@ public class FogSourceBlock extends BlockFluidClassic
     /**
      * Checks if an additional {@code -6} vertical drag should be applied to the entity. See {#link net.minecraft.block.BlockLiquid#getFlow()}
      */
-    public boolean causesDownwardCurrent(IBlockAccess worldIn, BlockPos pos, EnumFacing side)
-    {
+    public boolean causesDownwardCurrent(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
         IBlockState iblockstate = worldIn.getBlockState(pos);
         Block block = iblockstate.getBlock();
         Material material = iblockstate.getMaterial();
 
-        if (material == this.blockMaterial)
-        {
+        if (material == this.blockMaterial) {
             return false;
-        }
-        else if (side == EnumFacing.UP)
-        {
+        } else if (side == EnumFacing.UP) {
             return true;
-        }
-        else if (material == Material.ICE)
-        {
+        } else if (material == Material.ICE) {
             return false;
-        }
-        else
-        {
+        } else {
             boolean flag = isExceptBlockForAttachWithPiston(block) || block instanceof BlockStairs;
             return !flag && iblockstate.getBlockFaceShape(worldIn, pos, side) == BlockFaceShape.SOLID;
         }
@@ -195,11 +163,9 @@ public class FogSourceBlock extends BlockFluidClassic
      */
     /* IFluidBlock */
     @Override
-    public int place(World world, BlockPos pos, @Nonnull FluidStack fluidStack, boolean doPlace)
-    {
+    public int place(World world, BlockPos pos, @Nonnull FluidStack fluidStack, boolean doPlace) {
 
-        if (doPlace)
-        {
+        if (doPlace) {
             FluidUtil.destroyBlockOnFluidPlacement(world, pos);
             world.setBlockState(pos, this.getDefaultState(), 11);
         }
@@ -211,8 +177,7 @@ public class FogSourceBlock extends BlockFluidClassic
      */
     @Override
     @SideOnly(Side.CLIENT)
-    public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
-    {
+    public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
         return new Vec3d(Color.BLACK.getRed(), Color.BLACK.getGreen(), Color.BLACK.getBlue());
     }
 

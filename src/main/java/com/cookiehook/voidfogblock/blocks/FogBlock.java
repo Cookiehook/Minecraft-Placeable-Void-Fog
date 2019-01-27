@@ -5,14 +5,14 @@ import com.cookiehook.voidfogblock.init.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -22,14 +22,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.lang.Math;
 
 // TODO: Decide on whether to allow mobs to spawn inside the fog
 // TODO: Allow configuration of light level for fog to spread through.
 // TODO: Allow toggling of growth / retreat (for debug / world recovery)
 public class FogBlock extends Block {
-
-    private static int burnLevel = 7;
-    private static int growLevel = 7;
 
     public FogBlock(String name, Material material) {
         super(material);
@@ -62,8 +60,7 @@ public class FogBlock extends Block {
     }
 
     // Lets the player click through to blocks behind. Does not allow players to walk through the block.
-    public boolean isCollidable()
-    {
+    public boolean isCollidable() {
         return false;
     }
 
@@ -85,33 +82,74 @@ public class FogBlock extends Block {
         worldIn.spawnParticle(EnumParticleTypes.SUSPENDED_DEPTH, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
     }
 
-    // Controls spread and release, based on light levels. Cannibalised from grass block code.
-    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
+    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+    }
+
+
+    public void updateTick(World worldIn, BlockPos currentPos, IBlockState state, Random rand) {
+        spreadFog(worldIn, currentPos, rand, 3, 5);
+    }
+
+    // Controls spread and retreat, based on light levels. Cannibalised from grass block code.
+    public static void spreadFog (World worldIn, BlockPos currentPos, Random rand, int boundH, int boundV) {
         if (!worldIn.isRemote) {
-            if (!worldIn.isAreaLoaded(pos, 3))
+            if (!worldIn.isAreaLoaded(currentPos, 3))
                 return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
 
+            if (!validDistanceToSource(worldIn, currentPos)) {
+                worldIn.setBlockState(currentPos, Blocks.AIR.getDefaultState());
+                return;  // If this block was too far from a source, don't move on to spreading.
+            }
 
-            if (worldIn.getLight(pos, true) >= burnLevel) {
-                worldIn.setBlockState(pos, Blocks.AIR.getDefaultState());
+            if (!validLightLevel(worldIn, currentPos) && worldIn.getBlockState(currentPos).getBlock() == ModBlocks.fogBlock) {
+                worldIn.setBlockState(currentPos, Blocks.AIR.getDefaultState());
 
-            } else if (worldIn.getLight(pos, true) <= growLevel) {
+            } else {
                 for (int i = 0; i < 4; ++i) {
-                    BlockPos blockpos = pos.add(rand.nextInt(3) - 1, rand.nextInt(5) - 3, rand.nextInt(3) - 1);
+                    BlockPos newPos = currentPos.add(rand.nextInt(boundH) - 1, rand.nextInt(boundV) - 3, rand.nextInt(boundH) - 1);
 
-                    if (blockpos.getY() >= 0 && blockpos.getY() < 256 && !worldIn.isBlockLoaded(blockpos)) {
+                    if (newPos.getY() >= 0 && newPos.getY() < 256 && !worldIn.isBlockLoaded(newPos)) {
                         return;
                     }
 
-                    IBlockState iblockstate1 = worldIn.getBlockState(blockpos);
-
-                    if (iblockstate1.getBlock() == Blocks.AIR && worldIn.getLight(blockpos, true) <= growLevel) {
-                        worldIn.setBlockState(blockpos, this.getDefaultState());
+                    IBlockState iblockstate1 = worldIn.getBlockState(newPos);
+                    if (iblockstate1.getBlock() == Blocks.AIR
+                            && validLightLevel(worldIn, newPos)
+                            && validDistanceToSource(worldIn, newPos)) {
+                        worldIn.setBlockState(newPos, ModBlocks.fogBlock.getDefaultState());
                     }
                 }
-
             }
         }
     }
+
+    private static boolean validDistanceToSource(World worldIn, BlockPos pos) {
+        int upperDecay = 6;
+        int lowerDecay = upperDecay * -1;
+
+        for (int xdist = lowerDecay; xdist <= upperDecay; ++xdist) {
+            for (int ydist = lowerDecay; ydist <= upperDecay; ++ydist) {
+                for (int zdist = lowerDecay; zdist <= upperDecay; ++zdist) {
+
+                    double distance = Math.sqrt((xdist * xdist + zdist * zdist) + ydist * ydist);
+                    if (distance <= (double) upperDecay) {
+                        BlockPos sourceCheck = new BlockPos(pos.getX() + xdist, pos.getY() + ydist, pos.getZ() + zdist);
+                        Block potentialSource = worldIn.getBlockState(sourceCheck).getBlock();
+                        if (potentialSource == ModBlocks.fogSourceBlock) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean validLightLevel(World worldIn, BlockPos pos) {
+        int retreatLevel = 8;
+        int lightLevel = worldIn.getLight(pos, true);
+        return lightLevel <= retreatLevel; // If lightLevel lower than our retreat, then we can grow.
+    }
+
 }
 
