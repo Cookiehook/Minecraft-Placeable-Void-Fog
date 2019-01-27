@@ -31,8 +31,8 @@ public class FogBlock extends Block {
     private static int burnLevel = 7;
     private static int growLevel = 7;
 
-    public FogBlock(String name) {
-        super(Material.AIR);
+    public FogBlock(String name, Material material) {
+        super(material);
 
         this.setUnlocalizedName(name);
         this.setRegistryName(name);
@@ -56,15 +56,25 @@ public class FogBlock extends Block {
         return BlockRenderLayer.CUTOUT;
     }
 
+    // Required to render the blocks behind this.
     public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
 
+    // Lets the player click through to blocks behind. Does not allow players to walk through the block.
+    public boolean isCollidable()
+    {
+        return false;
+    }
+
+
+    // Lets the player walk through the block unimpeded. Does not block interaction with this block.
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
         return NULL_AABB;
     }
 
+    // Adds the gray fog particles at random
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
 
@@ -75,6 +85,7 @@ public class FogBlock extends Block {
         worldIn.spawnParticle(EnumParticleTypes.SUSPENDED_DEPTH, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
     }
 
+    // Controls spread and release, based on light levels. Cannibalised from grass block code.
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
         if (!worldIn.isRemote) {
             if (!worldIn.isAreaLoaded(pos, 3))

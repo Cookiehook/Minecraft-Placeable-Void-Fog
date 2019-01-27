@@ -16,8 +16,6 @@ public class ModFluids {
             new ResourceLocation(Reference.MOD_ID, "fog_source_still"),
             new ResourceLocation(Reference.MOD_ID, "fog_source_flow"))
             .setHasBucket(true)
-            .setGaseous(false)
-            .setLuminosity(9)
             .setViscosity(5000)
             .setTemperature(300);
 
