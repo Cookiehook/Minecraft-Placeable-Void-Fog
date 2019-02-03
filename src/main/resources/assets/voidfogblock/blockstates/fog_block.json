@@ -1,5 +1,18 @@
 {
   "variants": {
-    "normal": { "model": "voidfogblock:fog_block" }
+    "decay=false,distance=0": {"model": "voidfogblock:fog_block" },
+    "decay=false,distance=1": {"model": "voidfogblock:fog_block" },
+    "decay=false,distance=2": {"model": "voidfogblock:fog_block" },
+    "decay=false,distance=3": {"model": "voidfogblock:fog_block" },
+    "decay=false,distance=4": {"model": "voidfogblock:fog_block" },
+    "decay=false,distance=5": {"model": "voidfogblock:fog_block" },
+    "decay=false,distance=6": {"model": "voidfogblock:fog_block" },
+    "decay=true,distance=0": {"model": "voidfogblock:fog_block" },
+    "decay=true,distance=1": {"model": "voidfogblock:fog_block" },
+    "decay=true,distance=2": {"model": "voidfogblock:fog_block" },
+    "decay=true,distance=3": {"model": "voidfogblock:fog_block" },
+    "decay=true,distance=4": {"model": "voidfogblock:fog_block" },
+    "decay=true,distance=5": {"model": "voidfogblock:fog_block" },
+    "decay=true,distance=6": {"model": "voidfogblock:fog_block" }
   }
 }
