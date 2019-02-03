@@ -28,13 +28,13 @@ import java.lang.Math;
 
 // TODO: Decide on whether to allow mobs to spawn inside the fog
 // TODO: Allow configuration of light level for fog to spread through.
-public class FogBlock extends Block {
+public class BlockFog extends Block {
 
     static int maxDistanceToSource = 6;
     private static PropertyInteger distanceToSource = PropertyInteger.create("distance", 0, maxDistanceToSource);
     private static PropertyBool decay = PropertyBool.create("decay");
 
-    public FogBlock(String name, Material material) {
+    public BlockFog(String name, Material material) {
         super(material);
 
         this.setUnlocalizedName(name);
@@ -47,7 +47,6 @@ public class FogBlock extends Block {
                 .withProperty(decay, false));
 
         ModBlocks.blockList.add(this);
-        ModItems.itemList.add(new ItemBlock(this).setRegistryName(this.getRegistryName()));
     }
 
 
@@ -176,7 +175,7 @@ public class FogBlock extends Block {
                     if (distance <= (double) upperDecay) {
                         BlockPos sourceCheck = new BlockPos(pos.getX() + xdist, pos.getY() + ydist, pos.getZ() + zdist);
                         Block potentialSource = worldIn.getBlockState(sourceCheck).getBlock();
-                        if (potentialSource instanceof FogSourceBlock && getNeighbourDistance(worldIn, pos) < maxDistanceToSource) {
+                        if (potentialSource instanceof BlockFluidSource && getNeighbourDistance(worldIn, pos) < maxDistanceToSource) {
                             return true;
                         }
                     }
@@ -194,7 +193,7 @@ public class FogBlock extends Block {
             if (worldIn.getBlockState(neighbourPos).getBlock() == this) {
                 int neighbourDistance = worldIn.getBlockState(neighbourPos).getValue(distanceToSource);
                 newDistance = neighbourDistance < newDistance ? neighbourDistance : newDistance;
-            } else if (worldIn.getBlockState(neighbourPos).getBlock() instanceof FogSourceBlock) {
+            } else if (worldIn.getBlockState(neighbourPos).getBlock() instanceof BlockFluidSource) {
                 return 0;
             }
         }

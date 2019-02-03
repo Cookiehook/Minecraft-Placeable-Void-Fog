@@ -22,17 +22,16 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 
-public class FogSourceBlock extends BlockFluidClassic {
+public class BlockFluidSource extends BlockFluidClassic {
 
-    private FogBlock fogblock;
+    private BlockFog fogblock;
 
-    public FogSourceBlock(Fluid parFluid, Material parMaterial, FogBlock fogBlock, String name) {
+    public BlockFluidSource(Fluid parFluid, Material parMaterial, BlockFog fogBlock, String name) {
         super(parFluid, parMaterial);
         this.setUnlocalizedName(name);
         this.setRegistryName(name);
         this.fogblock = fogBlock;
         ModBlocks.blockList.add(this);
-        ModItems.itemList.add(new ItemBlock(this).setRegistryName(this.getRegistryName()));
     }
 
     @Override
@@ -62,7 +61,7 @@ public class FogSourceBlock extends BlockFluidClassic {
                     if (distance <= (double) upperDecay) {
                         BlockPos fogPos = new BlockPos(pos.getX() + xdist, pos.getY() + ydist, pos.getZ() + zdist);
                         Block potentialFog = worldIn.getBlockState(fogPos).getBlock();
-                        if (potentialFog instanceof FogBlock) {
+                        if (potentialFog instanceof BlockFog) {
                             worldIn.setBlockState(fogPos, this.fogblock.getStateFromMeta(14));
                         }
                     }
